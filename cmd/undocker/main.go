@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"strings"
 
@@ -42,6 +43,13 @@ func main() {
 			Usage:       "docker registry login password",
 			EnvVar:      "REGISTRY_PASS",
 			Destination: &opts.RegistryPass,
+		},
+		cli.StringFlag{
+			Name:        "tmpdir",
+			Value:       "/tmp/undocker",
+			Usage:       "temporal directory to extract image",
+			EnvVar:      "UNDOCKER_TMP_PATH",
+			Destination: &opts.TmpPath,
 		},
 	}
 
@@ -105,7 +113,11 @@ func main() {
 
 	app.Commands = append(app.Commands, extractCommand)
 	app.Commands = append(app.Commands, showCommand)
-	app.Run(os.Args)
+	err := app.Run(os.Args)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(3)
+	}
 }
 
 func parseReference(arg string) (repository, tag string, err error) {
